@@ -10,6 +10,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 # Config or interactive?  
+# In any case, create a log file AND a config save that can be used as a
+# config file.
 
 # Run updates.
 apt update -y
