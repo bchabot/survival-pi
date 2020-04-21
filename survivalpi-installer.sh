@@ -49,7 +49,7 @@ passwd $MYADMIN
 
 # Install LAMP/s stack
 apt-get install apache2 -y
-apt-get install php7.3 php7.3-gd sqlite php7.3-sqlite3 php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring
+apt-get install php7.3 php7.3-gd sqlite php7.3-sqlite3 php7.3-curl php7.3-zip php7.3-xml php7.3-mbstring php-ldap -y
 service apache2 restart
 a2enmod rewrite
 sed 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
