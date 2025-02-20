@@ -20,6 +20,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# Warn user to re-run installer if the machine reboots.
 
 
 # Run updates.
@@ -39,13 +40,49 @@ adduser $MYADMIN -g wheel
 echo "Please enter a password for $MYADMIN. "
 passwd $MYADMIN
 
+# Menu to select features:
+# Networking:
+#    Connect to existing network
+#    Act as Accesspoint
+#    Both
+#
+# Services:
+#    Wifi Accesspoint
+#    DNS
+#    DHCP
+#    Authentication (LDAP) Server
+#    Proxy
+#    Webserver
+#    Email Server
+#    Chat Server
+#    Voice Phone (SIP)
+#    Video Conferencing
+#    Social Media Server
+#    
+# Components::
+#    WordPress
+#    OwnCloud/NextCloud
+#    Webmail
+#    Kiwiki
+#    eBooks
+#    Moodle/LMS
+#    Map/GEO apps
+#    TAK server
+#    Ham Pi
+#    
+
+
 
 # Set up DNS (Local and caching)
 # including .local as default.
 
 # Set up DHCP
 
-# Set up WiFi 
+# Set up Networking
+# detect network cards
+# Select: 
+#    Dual nets on one internal Wifi
+#    Wifi only
 
 # Install LAMP/s stack
 apt-get install apache2 -y
