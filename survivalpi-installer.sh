@@ -1,16 +1,20 @@
 #!/bin/bash
 # This script is meant to be run on a fresh installation of the 
-# latest version of latest Raspian Lite.
+# latest version of latest Raspian or Raspbian Lite.
+#
 # Usage: If you have internet, get the latest version from:
 #     wget https://URL | sudo bash
 # Run this as ROOT!
 #
 # Some day this will be more interactive, but till then, edit the variables as 
 # needed.
+# COMINGSOON: Load from config file
+# COMINGSOON: Interactive
+# 
 THISHOST=survivor
 THISDOMAIN=survive.local
 MYADMIN=administrator
-THISNET="10.1.0.0/24"
+THISNET="10.1.0.0/24" # DHCP net
 THISWIFI=survivalnet
 THISWIFIPASS=WeAreAlive
 
@@ -20,13 +24,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Warn user to re-run installer if the machine reboots.
 
-
-# Run updates.
-echo "Installing updates..."
-apt update -y
-apt upgrade -y
 
 # Set hostname
 echo "Setting Hostname to $THIDHOST.$THISDOMAIN"
@@ -142,3 +140,14 @@ echo "https://$THISHOST.$THISDOMAIN/nextcloud/"
 #    BuddyPress? 
 #    Dolphin?
 #    b2evo?
+
+
+
+
+# RE-Warn user to re-run installer if the machine reboots.
+
+
+# Run updates.
+echo "Installing updates..."
+apt update -y
+apt upgrade -y
