@@ -67,17 +67,27 @@ if  [ "$STAGE" -eq 0 ]; then
 echo "Setting Hostname to $THIDHOST.$THISDOMAIN"
 hostnamectl set-hostname $THIDHOST.$THISDOMAIN
 sed 's/raspberry/$THISHOST $THISHOST.$THISDOMAIN/g' /etc/hosts
-echo "STAGE=1" > /etc/survivalpi/survivalpi.env
-STAGE=1
-fi
-# STAGE=1
-
 
 # Create an Admin User
 echo "Adding admin user, $MYADMIN"
 adduser $MYADMIN -g wheel
 echo "Please enter a password for $MYADMIN. "
 passwd $MYADMIN
+STAGE=1
+sed -i 's/^STAGE=.*/STAGE=1/' /etc/survivalpi/survivalpi.env
+echo "Wrote STAGE=1 (counter) to /etc/survivalpi/survivalpi.env"
+fi
+# STAGE=1
+
+if  [ "$STAGE" -le 1 ]; then
+# Start with fresh software and such
+apt-get update
+apt-get upgrade
+STAGE=2
+sed -i 's/^STAGE=.*/STAGE=2/' /etc/survivalpi/survivalpi.env
+echo "Wrote STAGE=2 (counter) to /etc/survivalpi/survivalpi.env"
+fi
+# STAGE=2
 
 # Menu to select features:
 # Networking:
@@ -111,9 +121,6 @@ passwd $MYADMIN
 #    
 
 
-# Start with fresh software and such
-apt-get update
-apt-get upgrade
 
 # Next we add RaspAP (which includes dnsmasq and a few other things...
 curl -sL https://install.raspap.com | bash
