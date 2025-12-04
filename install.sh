@@ -1,30 +1,31 @@
 #!/bin/bash -e
 # Running from a git repo
-# Add cmdline options for passing to ansible
+# Add cmdline options for passing to salt
 
 PLAYBOOK=iiab-stages.yml
 INVENTORY=ansible_hosts
-IIAB_STATE_FILE=/etc/iiab/iiab_state.yml
+SURVIVALPI_STATE_FILE=/etc/survivalpi/survivalpi_state.yml
 ARGS="--extra-vars {"    # Needs boolean not string so use JSON list.  bash forces {...} to '{...}' for Ansible
 
 CWD=`pwd`
 OS=`grep ^ID= /etc/os-release | cut -d= -f2`
 OS=${OS//\"/}    # Remove all '"'
 MIN_RPI_KERN=5.4.0         # Do not use 'rpi-update' unless absolutely necessary: https://github.com/iiab/iiab/issues/1993
-MIN_ANSIBLE_VER=2.16.14    # 2024-11-08: ansible-core 2.15 EOL is November 2024 per https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix  2022-11-09: Raspberry Pi 3 (and 3 B+ etc?) apparently install (and require?) ansible-core 2.11 for now -- @deldesir can explain more on PR #3419.  Historical: Ansible 2.8.3 and 2.8.6 had serious bugs, preventing their use with IIAB.
+# MIN_ANSIBLE_VER=2.16.14    # 2024-11-08: ansible-core 2.15 EOL is November 2024 per https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix  2022-11-09: Raspberry Pi 3 (and 3 B+ etc?) apparently install (and require?) ansible-core 2.11 for now -- @deldesir can explain more on PR #3419.  Historical: Ansible 2.8.3 and 2.8.6 had serious bugs, preventing their use with IIAB.
+MIN_SALT_VER=
 
 REINSTALL=false
 DEBUG=false
 SKIP_ROLE_ON_ERROR=false
 
 usage() {
-    echo -e "\n\e[1mUse './iiab-install' for regular installs, or to continue an install."
-    echo -e "Use './iiab-install --risky' to force 'skip_role_on_error: True'"
-    echo -e "Use './iiab-install --reinstall' to force running all Stages 0-9, followed by the Network Role."
-    echo -e "Use './iiab-install --debug' to run Stage 0, followed by Stages 3-9, followed by the Network Role."
-    echo -e "Use './iiab-configure' to run Stage 0, followed by Stages 4-9."
+    echo -e "\n\e[1mUse './install.sh' for regular installs, or to continue an install."
+    echo -e "Use './install.sh --risky' to force 'skip_role_on_error: True'"
+    echo -e "Use './install.sh --reinstall' to force running all Stages 0-9, followed by the Network Role."
+    echo -e "Use './install.sh --debug' to run Stage 0, followed by Stages 3-9, followed by the Network Role."
+    echo -e "Use './survivalpi-configure' to run Stage 0, followed by Stages 4-9."
     echo -e "Use './runrole' to run Stage 0, followed by a single Stage or Role."
-    echo -e "Use './iiab-network' to run Stage 0, followed by the Network Role.\e[0m\n"
+    echo -e "Use './survivalpi-network' to run Stage 0, followed by the Network Role.\e[0m\n"
 }
 
 # https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/14203146#14203146
@@ -53,9 +54,9 @@ ARGS="$ARGS\"skip_role_on_error\":$SKIP_ROLE_ON_ERROR"    # Needs boolean not
 # string so use JSON list.  Ansible permits these boolean values: (refresher)
 # https://github.com/iiab/iiab/blob/master/roles/0-init/tasks/validate_vars.yml#L19-L43
 
-if [ ! -f /etc/iiab/local_vars.yml ]; then
+if [ ! -f /etc/survivalpi/local_vars.yml ]; then
 
-    if [ -f /opt/iiab/iiab/vars/local_vars.yml ]; then
+    if [ -f /opt/survivalpi/iiab/vars/local_vars.yml ]; then
         echo -e "\nACTION NEEDED: YOUR /opt/iiab/iiab/vars/local_vars.yml IS NO LONGER SUPPORTED.\n" >&2
 
         echo -e "███████████████████ TO MOVE IT TO THE CORRECT LOCATION, RUN: ███████████████████" >&2
