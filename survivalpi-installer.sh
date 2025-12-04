@@ -24,12 +24,53 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# Set the stage! (Find out where we are in the install process)
+STAGE=0
+if [ -f /etc/survivalpi/survivalpi.env ]; then
+    if grep -q STAGE= /etc/survivalpi/survivalpi.env ; then
+        source /etc/survivalpi/survivalpi.env
+        echo "Extracted STAGE=""$STAGE"" (counter) from /etc/survivalpi/survivalpi.env"
+        if ! [ "$STAGE" -eq "$STAGE" ] 2> /dev/null; then
+            echo -e "\nEXITING: STAGE (counter) value == ""$STAGE"" is non-integer in /etc/survivalpi/survivalpi.env"
+            exit 1
+        elif [ "$STAGE" -lt 0 ] || [ "$STAGE" -gt 9 ]; then
+            echo -e "\nEXITING: STAGE (counter) value == ""$STAGE"" is out-of-range in /etc/survivalpi/survivalpi.env"
+            exit 1
+        fi
+    fi
+
+    if $($REINSTALL); then
+        STAGE=0
+        #ARGS="$ARGS"" --extra-vars reinstall=True"
+        ARGS="$ARGS,\"reinstall\":True"    # Needs boolean not string so use JSON list
+        sed -i 's/^STAGE=.*/STAGE=0/' /etc/survivalpi/survivalpi.env
+        echo "Wrote STAGE=0 (counter) to /etc/survivalpi/survivalpi.env"
+    elif [ "$STAGE" -ge 2 ] && $($DEBUG); then
+        STAGE=2
+        sed -i 's/^STAGE=.*/STAGE=2/' /etc/survivalpi/survivalpi.env
+        echo "Wrote STAGE=2 (counter) to /etc/survivalpi/survivalpi.env"
+    elif [ "$STAGE" -eq 9 ]; then
+        echo -e "\n\e[1mEXITING: STAGE (counter) in /etc/survivalpi/survivalpi.env shows Stage 9 Is Already Done.\e[0m"
+        usage
+        exit 0    # Allows rerunning https://download.iiab.io/install.txt
+    fi
+fi
+if [ "$STAGE" -lt 2 ] && $($DEBUG); then
+    echo -e "\n'--debug' *ignored* as STAGE (counter) < 2."
+fi
 
 
+echo -e "\nTRY TO RERUN './iiab-install' IF IT FAILS DUE TO CONNECTIVITY ISSUES ETC!\n"
+
+if  [ "$STAGE" -eq 0 ]; then
 # Set hostname
 echo "Setting Hostname to $THIDHOST.$THISDOMAIN"
 hostnamectl set-hostname $THIDHOST.$THISDOMAIN
 sed 's/raspberry/$THISHOST $THISHOST.$THISDOMAIN/g' /etc/hosts
+echo "STAGE=1" > /etc/survivalpi/survivalpi.env
+STAGE=1
+fi
+# STAGE=1
 
 
 # Create an Admin User
@@ -70,17 +111,15 @@ passwd $MYADMIN
 #    
 
 
+# Start with fresh software and such
+apt-get update
+apt-get upgrade
 
-# Set up DNS (Local and caching)
-# including .local as default.
+# Next we add RaspAP (which includes dnsmasq and a few other things...
+curl -sL https://install.raspap.com | bash
 
-# Set up DHCP
 
-# Set up Networking
-# detect network cards
-# Select: 
-#    Dual nets on one internal Wifi
-#    Wifi only
+
 
 # Install LAMP/s stack
 apt-get install apache2 -y
