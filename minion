@@ -1,0 +1,13 @@
+# File: /etc/salt/minion
+file_client: local
+  file_roots:
+    base:
+      - /srv/salt
+# Used by Vagrant for production
+master: localhost
+id: survivalpi
+file_client: local
+grains:
+  roles:
+    - production
+    
