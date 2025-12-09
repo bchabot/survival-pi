@@ -120,6 +120,40 @@ fi
 #    Ham Pi
 #    
 
+##### START with Salt so it can control everything else.
+
+### Install Salt as a masterless minion. 
+# Ensure keyrings dir exists
+mkdir -p /etc/apt/keyrings
+# Download public key
+curl -fsSL https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public | sudo tee /etc/apt/keyrings/salt-archive-keyring.pgp
+# Create apt repo target configuration
+curl -fsSL https://github.com/saltstack/salt-install-guide/releases/latest/download/salt.sources | sudo tee /etc/apt/sources.list.d/salt.sources
+sudo apt-get install salt-minion
+sudo systemctl enable salt-minion && sudo systemctl start salt-minion
+mkdir -p /etc/salt
+printf "# File: /etc/salt/minion" > /etc/salt/minion
+printf "file_client: local" >> /etc/salt/minion
+mkdir -p /srv/salt
+printf "" >> /etc/salt/minion
+printf "file_roots:"  >> /etc/salt/minion
+printf "  base:"  >> /etc/salt/minion
+printf "    - /srv/salt"  >> /etc/salt/minion
+# Now set up the Salt State Tree, top file, and SLS modules in the same way that they would be set up on a master. 
+
+BHC TODO LEFT OFF HERE
+
+
+sudo salt-call --local state.apply
+# To run a specific state (e.g., webserver.sls):
+# bash
+# sudo salt-call --local state.apply webserver
+
+
+
+
+
+
 
 
 # Next we add RaspAP (which includes dnsmasq and a few other things...
